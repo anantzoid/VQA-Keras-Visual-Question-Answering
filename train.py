@@ -16,10 +16,12 @@ train_annotations_path = 'data/mscoco_train2014_annotations.json'
 train_questions_path = 'data/Questions_Train_mscoco/MultipleChoice_mscoco_train2014_questions.json'
 vgg_weights_path = 'data/vgg16_weights.h5'
 glove_path = 'data/glove.6B.100d.txt'
-data_file = 'data/processed_data.pkl'
+data_file = 'data/ckpts/data_dict.pkl'
 SEQ_LENGTH = 23
 EMBEDDING_DIM = 100
 WORD_LIMIT = 10000
+DATA_SIZE = 1000
+saved_data_filename = "data/ckpts/data_"+"_".join([str(_) for _ in [SEQ_LENGTH, EMBEDDING_DIM, WORD_LIMIT, DATA_SIZE]])+".pkl"
 
 def prepare_image(img_path):
     im = imresize(imread(img_path), (224, 224)).astype(np.float32)
@@ -34,8 +36,7 @@ def prepare_embeddings(embeddings_index, texts):
     print "Embedding Data..."
     tokenizer = Tokenizer(nb_words=WORD_LIMIT)
     tokenizer.fit_on_texts(texts)
-    sequences = tokenizer.texts_to_sequences(texts)
-    
+   
     word_index = tokenizer.word_index
     NUM_WORDS = len(word_index)+1
     
@@ -49,7 +50,6 @@ def prepare_embeddings(embeddings_index, texts):
 
 
 def prepare_text(tokenizer, text):
-    tokenizer.fit_on_texts(text)
     t_sequences = tokenizer.texts_to_sequences(text)
     return pad_sequences(t_sequences, maxlen=SEQ_LENGTH)
 
@@ -68,8 +68,7 @@ def read_data():
         questions = json.loads(qs_file.read())    
 
     print "Making data files..."
-    classes = []
-    for question in questions['questions']:
+    for question in questions['questions'][:DATA_SIZE]:
         key = str(question['question_id'])
         if key not in data:
             image_id = str(question['image_id'])
@@ -80,27 +79,26 @@ def read_data():
             row = {}
             row['question'] = str(question['question'])
             row['image'] = prepare_image(image_file)
-            row['answer'] = [_ for _ in annotations['annotations'] if _['question_id']==question['question_id']][0]['multiple_choice_answer']
+            row['answer'] = str([_ for _ in annotations['annotations'] if _['question_id']==question['question_id']][0]['multiple_choice_answer'])
             data[key] = row
-        classes.append(data[key]['answer'])
+        
+        if len(data.values()) > 1:
+            break
 
-    classes = list(set(classes))
+    with open(data_file, 'wb') as pckle_file:
+        pickle.dump(data, pckle_file)
 
-    data_pickle_file = open(data_file, 'wb')
-    pickle.dump(data, data_pickle_file)
-    data_pickle_file.close()
+    return data.values()
 
-    return data.values(), classes
+def prepare_data(data, tokenizer):
 
-def prepare_data(data, tokenizer, classes):
-
-    im = [_['image'] for _ in data]
-    im = np.array([_[0] for _ in im])
-    embeddings = prepare_text(tokenizer, [_['question'] for _ in data])
+    im = np.asarray([_['image'][0] for _ in data])
+    embeddings = np.asarray(prepare_text(tokenizer, [_['question'] for _ in data]))
     targets = [_['answer'] for _ in data]
 
-    index_labels = to_categorical(range(len(classes)))
-    target_labels = np.array([index_labels[classes.index(_)] for _ in targets])
+    unique_classes = list(set(targets))
+    index_labels = to_categorical(range(len(unique_classes)))
+    target_labels = np.asarray([index_labels[unique_classes.index(_)] for _ in targets])
     return im, embeddings, target_labels
 
 def create_model(embedding_matrix, NUM_WORDS, target_shape):
@@ -118,26 +116,46 @@ def create_model(embedding_matrix, NUM_WORDS, target_shape):
          metrics=['accuracy'])
     return fc_model
 
+def save_processed_data(im, embeddings, target_labels, embedding_matrix, NUM_WORDS):
+    saved_data_dict = {
+            'im': im,
+            'embeddings': embeddings,
+            'target_labels': target_labels,
+            'embedding_matrix': embedding_matrix,
+            'num_words':NUM_WORDS
+            }
+    with open(saved_data_filename, 'wb') as pckle_file:
+        pickle.dump(saved_data_dict, pckle_file)
+    return True 
+
 def main():
-    [data, classes] = read_data()
+    if os.path.exists(saved_data_filename):
+        with open(saved_data_filename, 'rb') as d_file:
+            processed_data = pickle.load(d_file)
+        im = processed_data['im']
+        embeddings = processed_data['embeddings']
+        target_labels = processed_data['target_labels']
+        embedding_matrix = processed_data['embedding_matrix']
+        NUM_WORDS = processed_data['num_words']
+    else:
+        print "Loading Embeddings..."
+        embeddings_index = {}
+        with open(glove_path, 'r') as glove_file:
+            for line in glove_file:
+                values = line.split()
+                word = values[0]
+                coefs = np.asarray(values[1:], dtype='float32')
+                embeddings_index[word] = coefs
+
+        data = read_data()
+        [tokenizer, embedding_matrix, NUM_WORDS] = prepare_embeddings(embeddings_index, [_['question'] for _ in data])
+        [im, embeddings, target_labels] = prepare_data(data, tokenizer)
+        save_processed_data(im, embeddings, target_labels, embedding_matrix, NUM_WORDS)
+
     exit(0)
-    print "Loading Embeddings..."
-    embeddings_index = {}
-    with open(glove_path, 'r') as glove_file:
-        for line in glove_file:
-            values = line.split()
-            word = values[0]
-            coefs = np.asarray(values[1:], dtype='float32')
-            embeddings_index[word] = coefs
-
-    [data, classes] = read_data()
-    [tokenizer, embedding_matrix, NUM_WORDS] = prepare_embeddings(embeddings_index, [_['question'] for _ in data])
-    [im, embeddings, target_labels] = prepare_data(data, tokenizer, classes)
-
-
+    print "Creating Model..."
     model = create_model(embedding_matrix, NUM_WORDS, target_labels.shape[1])
-    
-    model.fit([im, np.array(embeddings)], target_labels, 
+    model.fit([im, embeddings], target_labels, 
         nb_epoch=100, batch_size=64)
 
 
