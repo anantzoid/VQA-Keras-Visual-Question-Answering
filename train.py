@@ -1,5 +1,5 @@
 import numpy as np
-from keras.models import Sequential, load_model
+from keras.models import Sequential#, load_model
 from keras.layers import Dense, Activation, Dropout, LSTM, Merge, Flatten, Embedding
 from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2D
 from keras.preprocessing.text import Tokenizer
@@ -83,9 +83,6 @@ def read_data():
             row['answer'] = str([_ for _ in annotations['annotations'] if _['question_id']==question['question_id']][0]['multiple_choice_answer'])
             data[key] = row
         
-        if len(data.values()) > 1:
-            break
-
     with open(data_file, 'wb') as pckle_file:
         pickle.dump(data, pckle_file)
 
