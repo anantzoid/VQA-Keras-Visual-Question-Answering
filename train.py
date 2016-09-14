@@ -1,5 +1,5 @@
 import numpy as np
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers import Dense, Activation, Dropout, LSTM, Merge, Flatten, Embedding
 from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2D
 from keras.preprocessing.text import Tokenizer
@@ -22,6 +22,7 @@ EMBEDDING_DIM = 100
 WORD_LIMIT = 10000
 DATA_SIZE = 1000
 saved_data_filename = "data/ckpts/data_"+"_".join([str(_) for _ in [SEQ_LENGTH, EMBEDDING_DIM, WORD_LIMIT, DATA_SIZE]])+".pkl"
+model_filename = "data/ckpts/model.h5"
 
 def prepare_image(img_path):
     im = imresize(imread(img_path), (224, 224)).astype(np.float32)
@@ -152,12 +153,12 @@ def main():
         [im, embeddings, target_labels] = prepare_data(data, tokenizer)
         save_processed_data(im, embeddings, target_labels, embedding_matrix, NUM_WORDS)
 
-    exit(0)
     print "Creating Model..."
     model = create_model(embedding_matrix, NUM_WORDS, target_labels.shape[1])
     model.fit([im, embeddings], target_labels, 
-        nb_epoch=100, batch_size=64)
-
+        nb_epoch=100, batch_size=128)
+    model.save(model_filename)
+    # model = load_model('my_model.h5')
 
 if __name__ == "__main__":
     main()
