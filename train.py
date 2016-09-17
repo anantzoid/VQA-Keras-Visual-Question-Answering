@@ -6,6 +6,7 @@ from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils.np_utils import to_categorical
 from scipy.misc import imread, imresize
+from collections import Counter
 import json
 import os
 import pickle
@@ -19,10 +20,11 @@ glove_path = 'data/glove.6B.100d.txt'
 data_file = 'data/ckpts/data_dict.pkl'
 SEQ_LENGTH = 23
 EMBEDDING_DIM = 100
-WORD_LIMIT = 10000
+WORD_LIMIT = 1000
 DATA_SIZE = 1000
 saved_data_filename = "data/ckpts/data_"+"_".join([str(_) for _ in [SEQ_LENGTH, EMBEDDING_DIM, WORD_LIMIT, DATA_SIZE]])+".pkl"
 model_filename = "data/ckpts/model.h5"
+model_weights_filename = "data/ckpts/model_weights.h5"
 
 def prepare_image(img_path):
     im = imresize(imread(img_path), (224, 224)).astype(np.float32)
@@ -82,7 +84,7 @@ def read_data():
             row['image'] = prepare_image(image_file)
             row['answer'] = str([_ for _ in annotations['annotations'] if _['question_id']==question['question_id']][0]['multiple_choice_answer'])
             data[key] = row
-        
+
     with open(data_file, 'wb') as pckle_file:
         pickle.dump(data, pckle_file)
 
@@ -94,7 +96,7 @@ def prepare_data(data, tokenizer):
     embeddings = np.asarray(prepare_text(tokenizer, [_['question'] for _ in data]))
     targets = [_['answer'] for _ in data]
 
-    unique_classes = list(set(targets))
+    unique_classes = [_[0] for _ in Counter(targets).most_common(1000)]
     index_labels = to_categorical(range(len(unique_classes)))
     target_labels = np.asarray([index_labels[unique_classes.index(_)] for _ in targets])
     return im, embeddings, target_labels
@@ -104,7 +106,7 @@ def create_model(embedding_matrix, NUM_WORDS, target_shape):
     lstm_model = Word2VecModel(embedding_matrix, NUM_WORDS, EMBEDDING_DIM, SEQ_LENGTH)
     print "Merging Final Model..."
     fc_model = Sequential()
-    fc_model.add(Merge([vgg_model, lstm_model], mode='concat'))
+    fc_model.add(Merge([vgg_model, lstm_model], mode='mul'))
     fc_model.add(Activation('relu'))
     fc_model.add(Dropout(0.5))
     fc_model.add(Dense(1024, activation='relu'))
@@ -153,9 +155,19 @@ def main():
     print "Creating Model..."
     model = create_model(embedding_matrix, NUM_WORDS, target_labels.shape[1])
     model.fit([im, embeddings], target_labels, 
-        nb_epoch=100, batch_size=128)
-    model.save(model_filename)
+        nb_epoch=10, batch_size=64)
+    model_json = model.to_json()
+    with open(model_filename, "w") as json_file:
+        json_file.write(model_json)
+    model.save_weights(model_weights_filename)
+
     # model = load_model('my_model.h5')
+    #json_file = open('model.json', 'r')
+    #loaded_model_json = json_file.read()
+    #json_file.close()
+    #loaded_model = model_from_json(loaded_model_json)
+    #loaded_model.load_weights("model.h5")
+
 
 if __name__ == "__main__":
     main()

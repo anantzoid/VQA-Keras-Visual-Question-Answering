@@ -8,7 +8,8 @@ def Word2VecModel(embedding_matrix, NUM_WORDS, EMBEDDING_DIM, SEQ_LENGTH):
     model = Sequential()
     model.add(Embedding(NUM_WORDS, EMBEDDING_DIM, 
         weights=[embedding_matrix], input_length=SEQ_LENGTH, trainable=False))
-    model.add(LSTM(output_dim=128))
+    model.add(Activation('tanh'))
+    model.add(LSTM(output_dim=4096))
     return model
 
 def VGG_16(weights_path=None):
@@ -63,6 +64,7 @@ def VGG_16(weights_path=None):
             g = f['layer_{}'.format(k)]
             weights = [g['param_{}'.format(p)] for p in range(g.attrs['nb_params'])]
             model.layers[k].set_weights(weights)
+            model.layers[k].trainable = False
         f.close()
         
     return model
