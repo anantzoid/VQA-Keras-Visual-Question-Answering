@@ -1,5 +1,5 @@
 import numpy as np
-from keras.models import Sequential#, load_model
+from keras.models import Sequential, model_from_json#load_model
 from keras.layers import Dense, Activation, Dropout, LSTM, Merge, Flatten, Embedding
 from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2D
 from keras.preprocessing.text import Tokenizer
@@ -18,10 +18,11 @@ train_questions_path = 'data/Questions_Train_mscoco/MultipleChoice_mscoco_train2
 vgg_weights_path = 'data/vgg16_weights.h5'
 glove_path = 'data/glove.6B.100d.txt'
 data_file = 'data/ckpts/data_dict.pkl'
+#TODO calculate on-the-fly
 SEQ_LENGTH = 23
 EMBEDDING_DIM = 100
 WORD_LIMIT = 1000
-DATA_SIZE = 1000
+DATA_INDEX, DATA_SIZE = 1000, 50000
 saved_data_filename = "data/ckpts/data_"+"_".join([str(_) for _ in [SEQ_LENGTH, EMBEDDING_DIM, WORD_LIMIT, DATA_SIZE]])+".pkl"
 model_filename = "data/ckpts/model.h5"
 model_weights_filename = "data/ckpts/model_weights.h5"
@@ -71,7 +72,7 @@ def read_data():
         questions = json.loads(qs_file.read())    
 
     print "Making data files..."
-    for question in questions['questions'][:DATA_SIZE]:
+    for question in questions['questions'][DATA_INDEX:DATA_SIZE]:
         key = str(question['question_id'])
         if key not in data:
             image_id = str(question['image_id'])
@@ -152,10 +153,18 @@ def main():
         [im, embeddings, target_labels] = prepare_data(data, tokenizer)
         save_processed_data(im, embeddings, target_labels, embedding_matrix, NUM_WORDS)
 
-    print "Creating Model..."
-    model = create_model(embedding_matrix, NUM_WORDS, target_labels.shape[1])
+    if os.path.exists(model_filename):
+        print "Loading Model..."
+        with open(model_filename, 'r') as json_file:
+            loaded_model_json = json_file.read()
+        model = model_from_json(loaded_model_json)
+        model.load_weights(model_weights_filename)
+    else:
+        print "Creating Model..."
+        model = create_model(embedding_matrix, NUM_WORDS, target_labels.shape[1])
+
     model.fit([im, embeddings], target_labels, 
-        nb_epoch=10, batch_size=64)
+        nb_epoch=50, batch_size=64)
     model_json = model.to_json()
     with open(model_filename, "w") as json_file:
         json_file.write(model_json)
