@@ -16,6 +16,9 @@ def read_data():
 
 def get_word_index():
     meta_data = json.load(open('data/data_prepro.json', 'r'))
-    word_index = meta_data['ix_to_word']
+    word_index = {str(word):int(i) for i,word in meta_data['ix_to_word'].items()}
     return word_index
 
+def get_class_index(): 
+    meta_data = json.load(open('data/data_prepro.json', 'r'))
+    return meta_data['ix_to_ans']

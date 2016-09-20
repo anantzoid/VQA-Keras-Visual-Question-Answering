@@ -36,10 +36,10 @@ def prepare_embeddings():
     embedding_matrix = np.zeros((NUM_WORDS, EMBEDDING_DIM))
     word_index = get_word_index()
 
-    for i, word in word_index.items():
-        embedding_vector = embeddings_index.get(str(word))
+    for word, i in word_index.items():
+        embedding_vector = embeddings_index.get(word)
         if embedding_vector is not None:
-            embedding_matrix[int(i)] = embedding_vector
+            embedding_matrix[i] = embedding_vector
     
     return embedding_matrix
 
