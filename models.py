@@ -8,9 +8,18 @@ def Word2VecModel(embedding_matrix, NUM_WORDS, EMBEDDING_DIM, SEQ_LENGTH):
     model = Sequential()
     model.add(Embedding(NUM_WORDS, EMBEDDING_DIM, 
         weights=[embedding_matrix], input_length=SEQ_LENGTH, trainable=False))
-    model.add(Activation('tanh'))
-    model.add(LSTM(output_dim=4096))
+    model.add(LSTM(output_dim=2048))
+    model.add(Dense(1024, activation='tanh'))
+    model.add(Dropout(0.5))
     return model
+
+def img_model():
+    print "Creating image model..."
+    model = Sequential()
+    model.add(Dense(1024, input_dim=4096, activation='tanh'))
+    model.add(Dropout(0.5))
+    return model
+    
 
 def VGG_16(weights_path=None):
     print "Creating VGG Model..."
