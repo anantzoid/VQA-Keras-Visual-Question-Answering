@@ -48,9 +48,8 @@ def create_model():
         print "Loading Model..."
         with open(model_filename, 'r') as json_file:
             loaded_model_json = json_file.read()
-        model = model_from_json(loaded_model_json)
-        model.load_weights(model_weights_filename)
-        return model
+        fc_model = model_from_json(loaded_model_json)
+        fc_model.load_weights(model_weights_filename)
     else:
         embedding_matrix = prepare_embeddings()
         print "Creating Model..."
@@ -64,16 +63,16 @@ def create_model():
         fc_model.add(Dense(1000, activation='tanh'))
         fc_model.add(Dropout(0.5))
         fc_model.add(Dense(num_classes, activation='softmax'))
-        fc_model.compile(optimizer='rmsprop', loss='categorical_crossentropy',
-            metrics=['accuracy'])
-        return fc_model
+    fc_model.compile(optimizer='rmsprop', loss='categorical_crossentropy',
+        metrics=['accuracy'])
+    return fc_model
 
 def main():
 
     train_X, train_y = read_data()    
     model = create_model()
     checkpointer = ModelCheckpoint(filepath=model_weights_filename,verbose=1,save_best_only=True)
-    model.fit(train_X, train_y, nb_epoch=5, batch_size=64, callbacks=[checkpointer])
+    model.fit(train_X, train_y, nb_epoch=5, batch_size=64, callbacks=[checkpointer], shuffle="batch")
     model_json = model.to_json()
     with open(model_filename, "w") as json_file:
         json_file.write(model_json)
