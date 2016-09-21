@@ -8,7 +8,7 @@ import json
 import os
 import pickle
 from models import *
-from read_data import read_data, get_word_index
+from read_data import read_data, get_metadata
 
 train_questions_path = 'data/Questions_Train_mscoco/MultipleChoice_mscoco_train2014_questions.json'
 glove_path = 'data/glove.6B.100d.txt'
@@ -34,7 +34,7 @@ def prepare_embeddings():
             embeddings_index[word] = coefs
 
     embedding_matrix = np.zeros((NUM_WORDS, EMBEDDING_DIM))
-    word_index = get_word_index()
+    word_index = get_metadata()['ix_to_word']
 
     for word, i in word_index.items():
         embedding_vector = embeddings_index.get(word)

@@ -21,7 +21,7 @@ def img_model():
     return model
     
 
-def VGG_16(weights_path=None):
+def VGG(weights_path=None):
     print "Creating VGG Model..."
     model = Sequential()
     model.add(ZeroPadding2D((1,1),input_shape=(3,224,224)))
@@ -42,6 +42,8 @@ def VGG_16(weights_path=None):
     model.add(Convolution2D(256, 3, 3, activation='relu'))
     model.add(ZeroPadding2D((1,1)))
     model.add(Convolution2D(256, 3, 3, activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(256, 3, 3, activation='relu'))
     model.add(MaxPooling2D((2,2), strides=(2,2)))
 
     model.add(ZeroPadding2D((1,1)))
@@ -50,8 +52,12 @@ def VGG_16(weights_path=None):
     model.add(Convolution2D(512, 3, 3, activation='relu'))
     model.add(ZeroPadding2D((1,1)))
     model.add(Convolution2D(512, 3, 3, activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(512, 3, 3, activation='relu'))
     model.add(MaxPooling2D((2,2), strides=(2,2)))
 
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(512, 3, 3, activation='relu'))
     model.add(ZeroPadding2D((1,1)))
     model.add(Convolution2D(512, 3, 3, activation='relu'))
     model.add(ZeroPadding2D((1,1)))
@@ -64,6 +70,7 @@ def VGG_16(weights_path=None):
     model.add(Dense(4096, activation='relu', name='fc1_1'))
     model.add(Dropout(0.5))
     model.add(Dense(4096, activation='relu', name='fc1_2'))
+    #model.add(Dropout(0.5))
 
     if weights_path:
         f = h5py.File(weights_path)

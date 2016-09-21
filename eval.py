@@ -4,7 +4,7 @@ from keras.preprocessing.text import text_to_word_sequence
 from keras.preprocessing.sequence import pad_sequences
 from nltk.tokenize import word_tokenize
 import os
-from read_data import get_word_index
+from read_data import get_metadata
 from models import *
 
 #TODO take from command line as arg
@@ -13,7 +13,7 @@ question = 'What color is the truck'
 
 model_filename = "data/ckpts/10/model.h5"
 model_weights_filename = "data/ckpts/10/model_weights.h5"
-vgg_weights_path = 'data/vgg16_weights.h5'
+vgg_weights_path = 'data/vgg19_weights.h5'
 SEQ_LENGTH = 26
 
 #TODO confirm is same params are used in original vgg model
@@ -26,13 +26,14 @@ def prepare_image(img_path):
     im = np.expand_dims(im, axis=0)
     return im
 
-vgg_model = VGG_16(vgg_weights_path) 
+vgg_model = VGG(vgg_weights_path) 
 sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
 model.compile(optimizer=sgd, loss='categorical_crossentropy')
 img_vector = model.predict(prepare_image(img_path))[0]
 
 question_vector = []
-word_index = get_word_index()
+metadata = get_metadata()
+word_index = metadata['ix_to_word']
 for word in word_tokenize(question):
     if word in word_index:
         question_vector.append(word_index[word])
@@ -40,17 +41,18 @@ for word in word_tokenize(question):
         question_vector.append(0)
 question_vector = np.array(pad_sequences(question_vector, maxlen=SEQ_LENGTH))
 
-if os.path.exists(model_filename) and os.path.exists(model_weights_filename):
-    print "Loading Model..."
-    with open(model_filename, 'r') as json_file:
-        loaded_model_json = json_file.read()
-    model = model_from_json(loaded_model_json)
-    model.load_weights(model_weights_filename)
-    model.compile(optimizer='rmsprop', loss='categorical_crossentropy',
-        metrics=['accuracy'])
-    pred = model.predict([img_vector, question_vector])[0]
-    top_pred = pred.argsort()[:-5][::-1]
+if not(os.path.exists(model_filename) and os.path.exists(model_weights_filename)):
+    print "Model not trained!"
 
-    ix_to_ans = get_class_index()
-    print [(ix_to_ans[str(_)], pred[_]) for _ in top_pred]
+print "Loading Model..."
+with open(model_filename, 'r') as json_file:
+    loaded_model_json = json_file.read()
+model = model_from_json(loaded_model_json)
+model.load_weights(model_weights_filename)
+model.compile(optimizer='rmsprop', loss='categorical_crossentropy',
+    metrics=['accuracy'])
+pred = model.predict([img_vector, question_vector])[0]
+top_pred = pred.argsort()[:-5][::-1]
+
+print [(metadata['ix_to_ans'][str(_)], pred[_]) for _ in top_pred]
 
