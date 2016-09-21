@@ -45,6 +45,7 @@ if not(os.path.exists(model_filename) and os.path.exists(model_weights_filename)
     print "Model not trained!"
 
 print "Loading Model..."
+# TODO define model, not load
 with open(model_filename, 'r') as json_file:
     loaded_model_json = json_file.read()
 model = model_from_json(loaded_model_json)

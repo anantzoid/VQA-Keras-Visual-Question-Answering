@@ -1,25 +1,39 @@
 from keras.models import Sequential
-from keras.layers import Dense, Activation, Dropout, LSTM, Flatten, Embedding
+from keras.layers import Dense, Activation, Dropout, LSTM, Flatten, Embedding, Merge
 from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2D
 import h5py
 
-def Word2VecModel(embedding_matrix, NUM_WORDS, EMBEDDING_DIM, SEQ_LENGTH):
-    print "Creating Word2Vec Model..."
+def Word2VecModel(embedding_matrix, NUM_WORDS, EMBEDDING_DIM, SEQ_LENGTH, dropout_rate):
+    print "Creating text model..."
     model = Sequential()
     model.add(Embedding(NUM_WORDS, EMBEDDING_DIM, 
         weights=[embedding_matrix], input_length=SEQ_LENGTH, trainable=False))
-    model.add(LSTM(output_dim=2048))
+    model.add(LSTM(output_dim=512, return_sequences=True, input_shape=(SEQ_LENGTH, EMBEDDING_DIM)))
+    model.add(Dropout(dropout_rate))
+    model.add(LSTM(output_dim=512, return_sequences=False))
+    model.add(Dropout(dropout_rate))
     model.add(Dense(1024, activation='tanh'))
-    model.add(Dropout(0.5))
     return model
 
-def img_model():
+def img_model(dropout_rate):
     print "Creating image model..."
     model = Sequential()
     model.add(Dense(1024, input_dim=4096, activation='tanh'))
-    model.add(Dropout(0.5))
     return model
-    
+
+def vqa_model(embedding_matrix, NUM_WORDS, EMBEDDING_DIM, SEQ_LENGTH, dropout_rate, num_classes):
+    vgg_model = img_model(dropout_rate)
+    lstm_model = Word2VecModel(embedding_matrix, NUM_WORDS, EMBEDDING_DIM, SEQ_LENGTH, dropout_rate)
+    print "Merging final model..."
+    fc_model = Sequential()
+    fc_model.add(Merge([vgg_model, lstm_model], mode='mul'))
+    fc_model.add(Dropout(dropout_rate))
+    fc_model.add(Dense(1000, activation='tanh'))
+    fc_model.add(Dropout(dropout_rate))
+    fc_model.add(Dense(num_classes, activation='softmax'))
+    fc_model.compile(optimizer='rmsprop', loss='categorical_crossentropy',
+        metrics=['accuracy'])
+    return fc_model
 
 def VGG(weights_path=None):
     print "Creating VGG Model..."
@@ -70,7 +84,7 @@ def VGG(weights_path=None):
     model.add(Dense(4096, activation='relu', name='fc1_1'))
     model.add(Dropout(0.5))
     model.add(Dense(4096, activation='relu', name='fc1_2'))
-    #model.add(Dropout(0.5))
+    model.add(Dropout(0.5))
 
     if weights_path:
         f = h5py.File(weights_path)
