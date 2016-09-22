@@ -9,7 +9,7 @@ model_filename = "data/ckpts/model.h5"
 model_weights_filename = "data/ckpts/model_weights.h5"
 num_classes = 1000
 SEQ_LENGTH = 26
-EMBEDDING_DIM = 100
+EMBEDDING_DIM = 300
 dropout_rate = 0.5
 metadata = get_metadata()
 NUM_WORDS = len(metadata['ix_to_word'].keys())
@@ -37,12 +37,12 @@ def main():
 
     train_X, train_y = read_data()    
     model = get_model()
-    checkpointer = ModelCheckpoint(filepath=model_weights_filename,verbose=1,save_best_only=True)
+    checkpointer = ModelCheckpoint(filepath=model_weights_filename,verbose=1)
     model.fit(train_X, train_y, nb_epoch=10, batch_size=128, callbacks=[checkpointer], shuffle="batch")
     model_json = model.to_json()
     with open(model_filename, "w") as json_file:
         json_file.write(model_json)
-    model.save_weights(model_weights_filename)
+    model.save_weights(model_weights_filename, overwrite=True)
 
 
 if __name__ == "__main__":

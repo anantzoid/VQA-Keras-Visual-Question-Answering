@@ -4,8 +4,8 @@ import json
 import h5py
 import os
 
-embedding_matrix_filename = "data/ckpts/embeddings.h5"
-glove_path = 'data/glove.6B.100d.txt'
+embedding_matrix_filename = "data/ckpts/embeddings_300.h5"
+glove_path = 'data/glove.6B.300d.txt'
 train_questions_path = 'data/Questions_Train_mscoco/MultipleChoice_mscoco_train2014_questions.json'
 
 def right_align(seq,lengths):
@@ -16,25 +16,25 @@ def right_align(seq,lengths):
     return v
 
 def read_data():
-    DATA_LIMIT = 10000
+    #DATA_LIMIT = 10000
     print "Reading Data..."
     img_data = h5py.File('data/data_img.h5')
     ques_data = h5py.File('data/data_prepro.h5')
   
     img_data = np.array(img_data['images_train'])
-    img_pos_train = ques_data['img_pos_train'][:DATA_LIMIT]
+    img_pos_train = ques_data['img_pos_train']#[:DATA_LIMIT]
     train_img_data = np.array([img_data[_-1,:] for _ in img_pos_train])
     # Normalizing images
     tem = np.sqrt(np.sum(np.multiply(train_img_data, train_img_data), axis=1))
     train_img_data = np.divide(train_img_data, np.transpose(np.tile(tem,(4096,1))))
 
     #shifting padding to left side
-    ques_train = np.array(ques_data['ques_train'])[:DATA_LIMIT, :]
-    ques_length_train = np.array(ques_data['ques_length_train'])[:DATA_LIMIT]
+    ques_train = np.array(ques_data['ques_train'])#[:DATA_LIMIT, :]
+    ques_length_train = np.array(ques_data['ques_length_train'])#[:DATA_LIMIT]
     ques_train = right_align(ques_train, ques_length_train)
 
     train_X = [train_img_data, ques_train]
-    train_y = to_categorical(ques_data['answers'])[:DATA_LIMIT, :]
+    train_y = to_categorical(ques_data['answers'])#[:DATA_LIMIT, :]
 
     #test_img_data = np.array([img_data[_-1,:] for _ in ques_data['img_pos_test']])
     #test_X = [img_data, ques_data['ques_test']]
