@@ -41,7 +41,7 @@ def val():
     for i,_ in enumerate(pred_classes):
         if _ in multi_val_y[i]:
             true_positive += 1
-    print np.float(right)/len(pred_classes)
+    print np.float(true_positive)/len(pred_classes)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
