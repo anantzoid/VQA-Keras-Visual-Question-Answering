@@ -1,3 +1,8 @@
 *.pyc
 .DS_Store
 .ipynb_checkpoints
+node_modules
+build
+.env
+npm-debug.log
+*.h5
