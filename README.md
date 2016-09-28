@@ -1,13 +1,13 @@
 Visual Question Answering with Keras
 ===================================
 
-Recent developments in Deep Learning has paved the way to accomplish tasks involving multimodal learning. Visual Question Answering [(VQA)](http://www.visualqa.org/) is one such challenge which requires high-level scene interpretation from images combined with language modelling of relevant Q&A. Given an image and a natural language question about the image, the task is to provide an accurate natural language answer.
+Recent developments in Deep Learning has paved the way to accomplish tasks involving multimodal learning. Visual Question Answering [(VQA)](http://www.visualqa.org/) is one such challenge which requires high-level scene interpretation from images combined with language modelling of relevant Q&A. Given an image and a natural language question about the image, the task is to provide an accurate natural language answer. This is a [Keras](http://keras.io) implementation of one such end-to-end system to accomplish the task.
 
 Checkout the demo here: 
 ![Demo](http://i.imgur.com/pB3bGeo.jpg)
 
 ### Architecture
-The learning architecture behind this demo is based on the model proposed in the [VQA paper](http://arxiv.org/pdf/1505.00468v6.pdf) and is written in Keras.
+The learning architecture behind this demo is based on the model proposed in the [VQA paper](http://arxiv.org/pdf/1505.00468v6.pdf).
 
 ![Architecure](http://i.imgur.com/2zJ09mQ.png)
 
@@ -34,7 +34,7 @@ Preprocessed features have been used based on these scripts written by the  [VT 
 Training was done on g2.2xlarge spot instance of AWS. Mutltiple commuity AMIs can be found having all the required packages pre-installed. g2.2xlarge has a NVIDIA Grid K520 with 4GB memory and takes ~277 seconds/epoch for a batch size of 256. The model has been trained on 50 epochs and has a accuracy of 45.03% on the validation set. There is a lot of scope for hyper-parameter tuning here.
 
 ### Running the application
-For details on how to run the demo app, check the docs in `app/` folder
+For details on how to run the demo app, check the docs in `app/` folder.
 
 ### Feedback
 If you have any feedback or suggestions, do ping me at anant718@gmail.com

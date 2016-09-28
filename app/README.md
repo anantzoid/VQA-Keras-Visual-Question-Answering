@@ -3,13 +3,12 @@ The demo app uses [Flask](flask.pocoo.org) as it's backend for serving the predi
 
 ### Prequisites
  - ReactJS
- - NodeJS
  - Redis
  - Flask
-  - NLTK (download punkt tokenizer)
+ - NLTK (download punkt tokenizer via `nltk.download()`)
 
 ### Data Resources
-Checkout `server/resources` docs for the required data files needed over there.
+Checkout `server/resources` docs for the required data files needed.
     
 ### Running the Application  
 To run the appliation in your local server:
