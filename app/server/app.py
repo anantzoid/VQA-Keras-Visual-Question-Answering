@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask.ext.cors import CORS
 import redis
 from time import sleep
+from datetime import datetime
 import pickle
 import uuid
 
@@ -22,6 +23,7 @@ def get_query():
 
     payload = "/__/".join([r_id, image_id, question])
     redis_obj.rpush("in", payload)
+    redis_obj.rpush("query_log", "|...|".join([r_id, image_id, question, str(datetime.now().split('.')[0])]))
     while True:
         predictions = redis_obj.hget("out", r_id)
         if predictions:

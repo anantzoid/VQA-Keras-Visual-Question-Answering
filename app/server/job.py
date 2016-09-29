@@ -1,6 +1,7 @@
 from keras.models import model_from_json
 from keras.preprocessing.sequence import pad_sequences
 from nltk.tokenize import word_tokenize
+from time import sleep
 import numpy as np
 import h5py
 import json
@@ -50,5 +51,6 @@ while True:
         top_pred = pred.argsort()[-5:][::-1]
         preds = pickle.dumps([(metadata['ix_to_ans'][str(_)].title(), round(pred[_]*100.0,2)) for _ in top_pred])
         redis_obj.hset("out", r_id, preds)
+    sleep(5)
 
      
