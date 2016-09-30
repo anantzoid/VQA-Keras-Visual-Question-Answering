@@ -8,9 +8,10 @@ var App = React.createClass({
         let image_data = data.images;
         let min = 0;
         let max = image_data.length-1;
+        let load_images = 30;
         let n_rand = 0;
         let rand_idx = [];
-        while (n_rand < max) {
+        while (n_rand < load_images) {
             let rand_int = Math.floor(Math.random() * (max - min + 1)) + min;
             if (rand_idx.indexOf(rand_int) === -1) {
                 rand_idx.push(rand_int);
@@ -26,10 +27,14 @@ var App = React.createClass({
             "question": "",    
             "image_list" : image_list,
             "predictions": [],
-            "show_loader": false,
+            "show_loader": true,
             "lightbox": false,
             "lightbox_src": ""
       }; 
+  },
+  componentDidMount() {
+    let _ = this;
+    $(window).on("load", () => _.setState({"show_loader":false}));
   },
   selectImage(image_id, event) {
         event.preventDefault();
@@ -67,7 +72,7 @@ var App = React.createClass({
             alert("Please enter a question");
         } else {
             $.ajax({
-                url: 'http://localhost:5000/q',
+                url: 'http://ec2-54-210-161-249.compute-1.amazonaws.com//q',
                 data: {
                     'img_id': this.state.image_id,
                     'q': this.state.question
@@ -102,7 +107,7 @@ var App = React.createClass({
   render() {
       let _ = this;
       let images = this.state.image_list.map(function(image) {
-        return <a className="image"  href="#" key={image.key} id={image.key} onClick={_.selectImage.bind(_, image.key)}><img src={"http://localhost:5000/" +image.file} alt={image.key}></img><span className="glyphicon glyphicon-resize-full" aria-hidden="true" onClick={_.expandImage.bind(_, image.key)}></span></a>;
+        return <a className="image"  href="#" key={image.key} id={image.key} onClick={_.selectImage.bind(_, image.key)}><img src={"http://ec2-54-210-161-249.compute-1.amazonaws.com/" +image.file} alt={image.key}></img><span className="glyphicon glyphicon-resize-full" aria-hidden="true" onClick={_.expandImage.bind(_, image.key)}></span></a>;
       });
    
     let divStyle =  {
