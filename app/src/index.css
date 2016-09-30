@@ -1,10 +1,10 @@
 @font-face {
     font-family: 'Roboto';
-    src: url('/vendor/fonts/Roboto-Regular.ttf');
+    src: url('/VQA-Keras-Visual-Question-Answering/vendor/fonts/Roboto-Regular.ttf');
 }
 @font-face {
     font-family: 'Roboto';
-    src: url('/vendor/fonts/Roboto-Italic.ttf');
+    src: url('/VQA-Keras-Visual-Question-Answering/vendor/fonts/Roboto-Italic.ttf');
     font-style: italic
 }
 @font-face {

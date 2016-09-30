@@ -157,7 +157,7 @@ var App = React.createClass({
             : null
         }
         { this.state.show_loader ?
-            <div className="loader-overlay"><img className="inner-loader-img" src= "/images/loading.gif"/></div>
+            <div className="loader-overlay"><img className="inner-loader-img" src= "/VQA-Keras-Visual-Question-Answering/images/loading.gif"/></div>
         : null }
         { this.state.lightbox ?
             <div onClick={this.closeLightbox}>
