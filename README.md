@@ -31,7 +31,7 @@ To evaluate the model on validation set, run `python train.py --type val`.
 ### Training Details
 Preprocessed features have been used based on these scripts written by the  [VT vision lab](https://github.com/VT-vision-lab/VQA_LSTM_CNN) team. These features already consist of transformed image vectors, indexed tokens for text and other metadata, for both the training and validation set.
 
-Training was done on g2.2xlarge spot instance of AWS. Mutltiple commuity AMIs can be found having all the required packages pre-installed. g2.2xlarge has a NVIDIA Grid K520 with 4GB memory and takes ~277 seconds/epoch for a batch size of 256. The model has been trained on 50 epochs and has a accuracy of 45.03% on the validation set. There is a lot of scope for hyper-parameter tuning here.
+Training was done on g2.2xlarge spot instance of AWS. Mutltiple commuity AMIs can be found having all the required packages pre-installed. g2.2xlarge has a NVIDIA Grid K520 with 4GB memory and takes ~277 seconds/epoch for a batch size of 256. The model has been trained on 50 epochs and has a accuracy of 45.03% on the validation set. Also, the accuracy started decreasing after 70 epochs. Thus, there is a lot of scope for hyper-parameter tuning here.
 
 ### Running the application
 For details on how to run the demo app, check the docs in `app/` folder.

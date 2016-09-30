@@ -4,9 +4,6 @@ import './App.css';
 import data from './image_list.json'
 
 var App = React.createClass({
-//class App extends Component {
-  //constructor(props){
-   //   super(props);
    getInitialState() {  
         let image_data = data.images;
         let min = 0;
@@ -105,7 +102,7 @@ var App = React.createClass({
   render() {
       let _ = this;
       let images = this.state.image_list.map(function(image) {
-        return <a className="image"  href="#" key={image.key} id={image.key} onClick={_.selectImage.bind(_, image.key)}><img src={image.file} alt={image.key}></img><span className="glyphicon glyphicon-resize-full" aria-hidden="true" onClick={_.expandImage.bind(_, image.key)}></span></a>;
+        return <a className="image"  href="#" key={image.key} id={image.key} onClick={_.selectImage.bind(_, image.key)}><img src={"http://localhost:5000/" +image.file} alt={image.key}></img><span className="glyphicon glyphicon-resize-full" aria-hidden="true" onClick={_.expandImage.bind(_, image.key)}></span></a>;
       });
    
     let divStyle =  {
@@ -175,8 +172,3 @@ function capitalizeFirstLetter(string) {
 
 export default App;
 
-/*
-
-            <button className="submit_query btn btn-default btn-primary" onClick={this.sendQuery}>Submit</button>
- 
- */

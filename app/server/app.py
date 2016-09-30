@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory, url_for
 from flask.ext.cors import CORS
 import redis
 from time import sleep
@@ -33,6 +33,14 @@ def get_query():
             response['payload'] = predictions
             break
     return jsonify(response)
+
+@app.route('/images/<path:path>')
+def serve_img(path):
+    return send_from_directory('static/images/train2014/', path)
+
+@app.route('/')
+def index():
+    return 'Redirect to app.'
 
 if __name__ == "__main__":
     app.run('0.0.0.0', debug=True)
