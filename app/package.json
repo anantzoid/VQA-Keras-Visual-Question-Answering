@@ -2,6 +2,7 @@
   "name": "vqa",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://anantzoid.github.io/VQA-Keras-Visual-Question-Answering",
   "devDependencies": {
     "react-scripts": "0.5.1"
   },
