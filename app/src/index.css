@@ -1,15 +1,15 @@
 @font-face {
     font-family: 'Roboto';
-    src: url('/VQA-Keras-Visual-Question-Answering/vendor/fonts/Roboto-Regular.ttf');
+    src: url('/vendor/fonts/Roboto-Regular.ttf');
 }
 @font-face {
     font-family: 'Roboto';
-    src: url('/VQA-Keras-Visual-Question-Answering/vendor/fonts/Roboto-Italic.ttf');
+    src: url('/vendor/fonts/Roboto-Italic.ttf');
     font-style: italic
 }
 @font-face {
     font-family: 'Lobster';
-    src: url('/VQA-Keras-Visual-Question-Answering/vendor/fonts/Lobster-Regular.ttf');
+    src: url('/vendor/fonts/Lobster-Regular.ttf');
 }
 body {
   margin: 0;
