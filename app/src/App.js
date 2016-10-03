@@ -5,7 +5,7 @@ import data from './image_list.json'
 
 var App = React.createClass({
    getInitialState() {  
-        let host = "http://localhost:5000/";
+        let host = "http://ec2-54-86-215-228.compute-1.amazonaws.com";
         let image_data = data.images;
         let min = 0;
         let max = image_data.length-1;
@@ -74,7 +74,7 @@ var App = React.createClass({
             alert("Please enter a question");
         } else {
             $.ajax({
-                url: this.state.HOST+'q',
+                url: 'https://4cf5d16c.ngrok.io/q',
                 data: {
                     'img_id': this.state.image_id,
                     'q': this.state.question
