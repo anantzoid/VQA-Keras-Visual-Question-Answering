@@ -182,13 +182,19 @@ footer {
 
 .brand a, .brand a:hover { color: #fff; }
 
-@media only screen and (max-width: 1024px) {
-}
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 648px) {
     .App-header {
         top: 10%;
         left: 2%
     }
+}
+@media only screen and (min-width: 649px) and (max-width: 768px) {
+    .App-header {
+        top: 10%;
+        left: 10%
+    }
+}
+@media only screen and (max-width: 768px) {
     .banner_text { 
         top: 75%;
         left: 5%; 
@@ -202,6 +208,17 @@ footer {
     .pred_percent { margin-left: 25%; }
     .lightbox-container img { 
         max-width: 90%;
+    }
+    .inner-loader-img {
+        width: 46%;
+        margin: 60% 0 0 0%;
+    }
+}
+
+@media only screen and (min-width: 769px) and (max-width: 1024px) {
+    .App-header {
+        top: 10%;
+        left: 15%
     }
 }
 

@@ -5,6 +5,7 @@ import data from './image_list.json'
 
 var App = React.createClass({
    getInitialState() {  
+        let host = "http://localhost:5000/";
         let image_data = data.images;
         let min = 0;
         let max = image_data.length-1;
@@ -23,6 +24,7 @@ var App = React.createClass({
             image_list.push(image_data[rand_idx[i]]);
         }
         return  {
+            "HOST": host,
             "image_id": 0,
             "question": "",    
             "image_list" : image_list,
@@ -48,7 +50,7 @@ var App = React.createClass({
   expandImage(image_id) {
     for(let i in this.state.image_list) {
         if (this.state.image_list[i].key === image_id) {
-            this.setState({'lightbox': true, 'lightbox_src':this.state.image_list[i].file});
+            this.setState({'lightbox': true, 'lightbox_src':this.state.HOST+this.state.image_list[i].file});
             break;
         }
     } 
@@ -72,7 +74,7 @@ var App = React.createClass({
             alert("Please enter a question");
         } else {
             $.ajax({
-                url: 'http://ec2-54-210-161-249.compute-1.amazonaws.com//q',
+                url: this.state.HOST+'q',
                 data: {
                     'img_id': this.state.image_id,
                     'q': this.state.question
@@ -107,7 +109,7 @@ var App = React.createClass({
   render() {
       let _ = this;
       let images = this.state.image_list.map(function(image) {
-        return <a className="image"  href="#" key={image.key} id={image.key} onClick={_.selectImage.bind(_, image.key)}><img src={"http://ec2-54-210-161-249.compute-1.amazonaws.com/" +image.file} alt={image.key}></img><span className="glyphicon glyphicon-resize-full" aria-hidden="true" onClick={_.expandImage.bind(_, image.key)}></span></a>;
+        return <a className="image"  href="#" key={image.key} id={image.key} onClick={_.selectImage.bind(_, image.key)}><img src={_.state.HOST+image.file} alt={image.key}></img><span className="glyphicon glyphicon-resize-full" aria-hidden="true" onClick={_.expandImage.bind(_, image.key)}></span></a>;
       });
    
     let divStyle =  {
@@ -118,6 +120,9 @@ var App = React.createClass({
 
     return (
       <div className="App">
+        { this.state.show_loader ?
+            <div className="loader-overlay"><img className="inner-loader-img" src= "/images/loading.gif"/></div>
+        : null }
         <div className="App-header">
             <div className="App-intro">
                 Visual Question Answering
@@ -156,9 +161,6 @@ var App = React.createClass({
             </div>
             : null
         }
-        { this.state.show_loader ?
-            <div className="loader-overlay"><img className="inner-loader-img" src= "/images/loading.gif"/></div>
-        : null }
         { this.state.lightbox ?
             <div onClick={this.closeLightbox}>
                 <div className="loader-overlay lightboxOverlay"></div>
