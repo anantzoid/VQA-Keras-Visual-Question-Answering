@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory, url_for
+from flask import Flask, request, jsonify, send_from_directory, redirect
 from flask.ext.cors import CORS
 import redis
 from time import sleep
@@ -40,6 +40,7 @@ def serve_img(path):
 
 @app.route('/')
 def index():
+    return redirect('https://anantzoid.github.io/VQA-Keras-Visual-Question-Answering/')
     return 'Redirect to app.'
 
 if __name__ == "__main__":

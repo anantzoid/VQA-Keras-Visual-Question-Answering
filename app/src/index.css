@@ -1,6 +1,6 @@
 @font-face {
-    font-family: 'Roboto';
-    src: url('/vendor/fonts/Roboto-Regular.ttf');
+    font-family: 'Lobster';
+    src: url('/vendor/fonts/Lobster-Regular.ttf');
 }
 @font-face {
     font-family: 'Roboto';
@@ -8,8 +8,8 @@
     font-style: italic
 }
 @font-face {
-    font-family: 'Lobster';
-    src: url('/vendor/fonts/Lobster-Regular.ttf');
+    font-family: 'Roboto';
+    src: url('/vendor/fonts/Roboto-Regular.ttf');
 }
 body {
   margin: 0;
