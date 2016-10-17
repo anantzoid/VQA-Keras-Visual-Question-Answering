@@ -15,8 +15,7 @@ def compareAndSetRegisteredId(response_id):
     return True
 
 def register():
-    # TODO get QanaryPipelineURL
-    service_url = ""
+    service_url = "http://localhost:8080"
     headers = getHTTPHeaders()
     response = requests.post(service_url, headers=headers)    
 
