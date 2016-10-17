@@ -43,5 +43,25 @@ def index():
     return redirect('https://anantzoid.github.io/VQA-Keras-Visual-Question-Answering/')
     return 'Redirect to app.'
 
+@app.route('/annotatequestion', methods=['POST'])
+def annotateQuestion():
+    data_access_uri = request.form['http://qanary/#endpoint']
+    # TODO what to do with inGraph and outGraph
+    data = requests.get(data_access_uri)
+    # TODO parse triplestore data
+    r_id = str(uuid.uuid4())
+    response = {'status': False}
+    payload = "/__/".join([r_id, image_id, question])
+    redis_obj.rpush("in", payload)
+    redis_obj.rpush("query_log", "|...|".join([r_id, image_id, question, str(datetime.now()).split('.')[0]]))
+    while True:
+        predictions = redis_obj.hget("out", r_id)
+        if predictions:
+            predictions = pickle.loads(predictions)
+            redis_obj.hdel("out", "1")
+            # TODO push predictions to triplestore via SPARQL query
+            response['status'] = True
+    return jsonify(response)
+
 if __name__ == "__main__":
     app.run('0.0.0.0', debug=True)
