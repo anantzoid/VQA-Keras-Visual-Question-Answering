@@ -28,7 +28,7 @@ def get_query():
         predictions = redis_obj.hget("out", r_id)
         if predictions:
             predictions = pickle.loads(predictions)
-            redis_obj.hdel("out", "1")
+            redis_obj.hdel("out", r_id)
             response['status'] = True
             response['payload'] = predictions
             break
