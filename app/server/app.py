@@ -10,28 +10,29 @@ app = Flask(__name__)
 CORS(app)
 redis_obj = redis.Redis()
 
-@app.route('/q', methods=['GET'])
-def get_query():
-    if len(redis_obj.lrange("in", 0, -1)) > 100:
-        response['message'] = "Server is overloaded at the moment. Please try after some time."
-        return jsonify(response)
-
-    image_id = str(request.args['img_id'])
-    question = str(request.args['q'])
+def pushQuery(image_id, question):
     r_id = str(uuid.uuid4())
-    response = {'status': False}
-
     payload = "/__/".join([r_id, image_id, question])
     redis_obj.rpush("in", payload)
     redis_obj.rpush("query_log", "|...|".join([r_id, image_id, question, str(datetime.now()).split('.')[0]]))
     while True:
         predictions = redis_obj.hget("out", r_id)
         if predictions:
-            predictions = pickle.loads(predictions)
-            redis_obj.hdel("out", "1")
-            response['status'] = True
-            response['payload'] = predictions
-            break
+            redis_obj.hdel("out", r_id)
+            return predictions
+    
+@app.route('/q', methods=['GET'])
+def get_query():
+    response = {'status': False}
+    if len(redis_obj.lrange("in", 0, -1)) > 100:
+        response['message'] = "Server is overloaded at the moment. Please try after some time."
+        return jsonify(response)
+
+    image_id = str(request.args['img_id'])
+    question = str(request.args['q'])
+    predictions = pushQuery(image_id, question)
+    response['status'] = True
+    response['payload'] = pickle.loads(predictions)
     return jsonify(response)
 
 @app.route('/images/<path:path>')
@@ -43,12 +44,14 @@ def index():
     return redirect('https://anantzoid.github.io/VQA-Keras-Visual-Question-Answering/')
     return 'Redirect to app.'
 
+# endpoint where Qanary will make a call to retreive the answer
 @app.route('/annotatequestion', methods=['POST'])
 def annotateQuestion():
     response = {'status': False}
+    # Access triplestore to get query params
     data_access_uri = request.form['http://qanary/#endpoint']
-
     data = requests.get(data_access_uri)
+
     # NOTE assuming these are the key names in the payload
     image_id = data.get("image_id", None)
     question = data.get("question", None)
@@ -56,17 +59,10 @@ def annotateQuestion():
         response['message'] = "Missing image_id or question"
         return jsonify(response)
 
-    r_id = str(uuid.uuid4())
-    payload = "/__/".join([r_id, image_id, question])
-    redis_obj.rpush("in", payload)
-    redis_obj.rpush("query_log", "|...|".join([r_id, image_id, question, str(datetime.now()).split('.')[0]]))
-    while True:
-        predictions = redis_obj.hget("out", r_id)
-        if predictions:
-            predictions = pickle.loads(predictions)
-            redis_obj.hdel("out", "1")
-            # TODO @Kuldeep: push predictions to triplestore via SPARQL query
-            response['status'] = True
+    predictions = pushQuery(image_id, question)
+    predictions = pickle.loads(predictions)
+    # TODO @Kuldeep: push predictions to triplestore via SPARQL query
+    response['status'] = True
     return jsonify(response)
 
 if __name__ == "__main__":

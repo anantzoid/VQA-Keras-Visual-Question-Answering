@@ -1,10 +1,17 @@
-# Register VQA as a service in Qanary
+'''
+Job script to create a connection to Qanary and register VQA as a service.
+Keeps polling every 10 sec. to keep the connection alive.
+'''
+
 import requests
 import json
 import time
 import redis
 from app import app
 redis_obj = redis.Redis()
+
+def getAdminUrl():
+    return "http://localhost:8080"
 
 def getHTTPHeaders():
     return { 
@@ -19,7 +26,7 @@ def compareAndSetRegisteredId(response_id):
     return True
 
 def register():
-    service_url = "http://localhost:8080"
+    service_url = getAdminUrl()
     headers = getHTTPHeaders()
     response = requests.post(service_url, headers=headers)    
 

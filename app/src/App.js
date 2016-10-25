@@ -5,7 +5,7 @@ import data from './image_list.json'
 
 var App = React.createClass({
    getInitialState() {  
-        let host = "http://ec2-54-86-215-228.compute-1.amazonaws.com";
+        let host = "https://4cf5d16c.ngrok.io/";
         let image_data = data.images;
         let min = 0;
         let max = image_data.length-1;
