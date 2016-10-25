@@ -2,7 +2,9 @@
 import requests
 import json
 import time
+import redis
 from app import app
+redis_obj = redis.Redis()
 
 def getHTTPHeaders():
     return { 
@@ -11,7 +13,9 @@ def getHTTPHeaders():
             }
 
 def compareAndSetRegisteredId(response_id):
-    # TODO store the id somewhere
+    connection = redis_obj.hget("qanary_instance", response_id)
+    connection = int(connection)+1 if connection else 1
+    redis_obj.hset("qanary_instance", response_id, connection)
     return True
 
 def register():
