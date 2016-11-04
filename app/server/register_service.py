@@ -8,10 +8,13 @@ import json
 import time
 import redis
 from app import app
+import uuid
+
 redis_obj = redis.Redis()
 
 def getAdminUrl():
-    return "http://localhost:8080"
+    return "http://ec2-54-162-80-157.compute-1.amazonaws.com:8080/api/applications"
+    #return "http://localhost:8080"
 
 def getHTTPHeaders():
     return { 
@@ -28,9 +31,18 @@ def compareAndSetRegisteredId(response_id):
 def register():
     service_url = getAdminUrl()
     headers = getHTTPHeaders()
-    response = requests.post(service_url, headers=headers)    
+    _id = str(uuid.uuid4())
+    # NOTE the host in the url is a temporary one
+    data = {"id": _id,
+            "name":"Visual Question Answering", 
+            "healthUrl": "http://93f71944.ngrok.io/annotatequestion",
+            "serviceUrl": "http://93f71944.ngrok.io/annotatequestion",
+            "managementUrl": "http://93f71944.ngrok.io/annotatequestion",
+            "statusInfo": "ONLINE"
+            }
+    response = requests.post(service_url, headers=headers, json=data)    
 
-    if response.status_code == 200:
+    if response.status_code == 201 or response.status_code == 200:
         response_body = json.loads(response.text)
         if compareAndSetRegisteredId(response_body["id"]):
             print "Application registered as %s"%response_body

@@ -5,6 +5,7 @@ from time import sleep
 from datetime import datetime
 import pickle
 import uuid
+import requests
 
 app = Flask(__name__)
 CORS(app)
@@ -45,11 +46,12 @@ def index():
     return 'Redirect to app.'
 
 # endpoint where Qanary will make a call to retreive the answer
-@app.route('/annotatequestion', methods=['POST'])
+@app.route('/annotatequestion')
 def annotateQuestion():
     response = {'status': False}
+    print request.args
     # Access triplestore to get query params
-    data_access_uri = request.form['http://qanary/#endpoint']
+    data_access_uri = request.args.get('http://qanary/#endpoint')
     data = requests.get(data_access_uri)
 
     # NOTE assuming these are the key names in the payload
