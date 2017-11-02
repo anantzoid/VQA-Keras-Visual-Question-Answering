@@ -8,9 +8,9 @@ def Word2VecModel(embedding_matrix, num_words, embedding_dim, seq_length, dropou
     model = Sequential()
     model.add(Embedding(num_words, embedding_dim, 
         weights=[embedding_matrix], input_length=seq_length, trainable=False))
-    model.add(LSTM(output_dim=512, return_sequences=True, input_shape=(seq_length, embedding_dim)))
+    model.add(LSTM(units=512, return_sequences=True, input_shape=(seq_length, embedding_dim)))
     model.add(Dropout(dropout_rate))
-    model.add(LSTM(output_dim=512, return_sequences=False))
+    model.add(LSTM(units=512, return_sequences=False))
     model.add(Dropout(dropout_rate))
     model.add(Dense(1024, activation='tanh'))
     return model
